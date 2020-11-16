@@ -21,14 +21,11 @@ namespace open_xml_demo.util
 
         public void FindAndReplace(string tag, string value)
         {
-            foreach (var p in curDoc.MainDocumentPart.Document.Descendants<Paragraph>())
+            foreach (var p in curDoc.MainDocumentPart.Document.Descendants<Text>())
             {
-                if (p.InnerText.Contains(tag))
+                if (p.Text.Contains(tag))
                 {
-                    Run newRun = new Run();
-                    newRun.AppendChild(new Text(p.InnerText.Replace(tag, value)));
-                    p.RemoveAllChildren<Run>();
-                    p.AppendChild(newRun);
+                    p.Text = p.Text.Replace(tag, value);
                 }
             }
             curDoc.MainDocumentPart.Document.Save();
