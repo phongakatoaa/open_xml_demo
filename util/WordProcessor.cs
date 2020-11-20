@@ -6,6 +6,7 @@ using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace open_xml_demo.util
 {
@@ -42,13 +43,23 @@ namespace open_xml_demo.util
             curDoc.Dispose();
         }
 
-        public void FindAndReplace(string tag, string value)
+        public void FindAndReplace(string tag, string value, Color color = null)
         {
-            foreach (var p in curDoc.MainDocumentPart.Document.Descendants<Text>())
+            foreach (var t in curDoc.MainDocumentPart.Document.Descendants<Text>())
             {
-                if (p.Text.Contains(tag))
+                if (t.Text.Contains(tag))
                 {
-                    p.Text = p.Text.Replace(tag, value);
+                    t.Text = t.Text.Replace(tag, value);
+                    if (color != null)
+                    {
+                        RunProperties runProperties = t.Parent.Descendants<RunProperties>().First();
+                        if (runProperties == null)
+                        {
+                            runProperties = new RunProperties();
+                            t.Parent.InsertBefore(runProperties, t);
+                        }
+                        runProperties.Append(color);
+                    }
                 }
             }
         }
