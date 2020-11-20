@@ -1,6 +1,9 @@
 ﻿using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using A = DocumentFormat.OpenXml.Drawing;
+using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
+using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
 using System;
 using System.IO;
 
@@ -9,14 +12,34 @@ namespace open_xml_demo.util
     class WordProcessor
     {
         private WordprocessingDocument curDoc;
+        private ImageHelper imageHelper = new ImageHelper(1U);
+
         public WordProcessor(MemoryStream stream)
         {
-            curDoc = WordprocessingDocument.Open(stream, true);
+            OpenSettings os = new OpenSettings
+            {
+                AutoSave = false
+            };
+            curDoc = WordprocessingDocument.Open(stream, true, os);
+        }
+
+        public WordProcessor(String fileName)
+        {
+            OpenSettings os = new OpenSettings
+            {
+                AutoSave = false
+            };
+            curDoc = WordprocessingDocument.Open(fileName, true, os);
         }
 
         public void Save(string saveLoc)
         {
             curDoc.SaveAs(saveLoc);
+        }
+
+        public void Close()
+        {
+            curDoc.Dispose();
         }
 
         public void FindAndReplace(string tag, string value)
@@ -28,7 +51,6 @@ namespace open_xml_demo.util
                     p.Text = p.Text.Replace(tag, value);
                 }
             }
-            curDoc.MainDocumentPart.Document.Save();
         }
 
         public void InsertTable(string placeholder)
@@ -107,7 +129,24 @@ namespace open_xml_demo.util
 
                     table.Append(row_1, row_2);
                     curDoc.MainDocumentPart.Document.Body.ReplaceChild(table, p);
-                    curDoc.Save();
+                }
+            }
+        }
+
+        public void InsertImage(string placeholder, string fileName, int width, int height)
+        {
+            ImagePart imagePart = curDoc.MainDocumentPart.AddImagePart(ImagePartType.Png);
+            using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
+            {
+                imagePart.FeedData(fileStream);
+            }
+            string relationshipId = curDoc.MainDocumentPart.GetIdOfPart(imagePart);
+            foreach (var p in curDoc.MainDocumentPart.Document.Body.Descendants<Paragraph>())
+            {
+                if (p.InnerText.Equals(placeholder))
+                {
+                    var element = imageHelper.GetImageElement(relationshipId, fileName, Guid.NewGuid().ToString(), width, height);
+                    curDoc.MainDocumentPart.Document.Body.ReplaceChild(new Paragraph(new Run(element)), p);
                 }
             }
         }

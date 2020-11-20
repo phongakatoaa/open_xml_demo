@@ -15,17 +15,12 @@ namespace open_xml_demo
             string fileName = projectDirectory + "\\demo\\test.docx";
             string saveLoc = projectDirectory + "\\demo\\result.docx";
 
-            byte[] byteArray = File.ReadAllBytes(fileName);
-            using (var stream = new MemoryStream())
-            {
-                stream.Write(byteArray, 0, byteArray.Length);
-
-                var processor = new WordProcessor(stream);
-                processor.FindAndReplace("#NAME#", "Phong Ha Tuan");
-                processor.FindAndReplace("#DATE#", DateTime.Now.ToString());
-                processor.InsertTable("TABLE_PLACEHOLDER");
-                processor.Save(saveLoc);
-            }
+            var processor = new WordProcessor(fileName);
+            processor.FindAndReplace("#NAME#", "Phong Ha Tuan");
+            processor.FindAndReplace("#DATE#", DateTime.Now.ToString());
+            processor.InsertTable("TABLE_PLACEHOLDER");
+            processor.InsertImage("IMAGE_PLACEHOLDER", projectDirectory + "\\demo\\image.png", 400, 300);
+            processor.Save(saveLoc);
         }
     }
 }
