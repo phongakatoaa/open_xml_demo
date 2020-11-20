@@ -19,7 +19,7 @@ namespace open_xml_demo
             processor.FindAndReplace("#NAME#", "Phong Ha Tuan");
             processor.FindAndReplace("#DATE#", DateTime.Now.ToString());
             processor.InsertTable("TABLE_PLACEHOLDER");
-            processor.InsertImage("IMAGE_PLACEHOLDER", projectDirectory + "\\demo\\image.png", 400, 300);
+            processor.InsertImage("IMAGE_PLACEHOLDER", projectDirectory + "\\demo\\image.png", 200, 200);
             processor.Save(saveLoc);
         }
     }

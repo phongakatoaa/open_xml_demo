@@ -143,10 +143,30 @@ namespace open_xml_demo.util
             string relationshipId = curDoc.MainDocumentPart.GetIdOfPart(imagePart);
             foreach (var p in curDoc.MainDocumentPart.Document.Body.Descendants<Paragraph>())
             {
+                Console.WriteLine(p.InnerText);
                 if (p.InnerText.Equals(placeholder))
                 {
                     var element = imageHelper.GetImageElement(relationshipId, fileName, Guid.NewGuid().ToString(), width, height);
                     curDoc.MainDocumentPart.Document.Body.ReplaceChild(new Paragraph(new Run(element)), p);
+                }
+            }
+
+            foreach (var t in curDoc.MainDocumentPart.Document.Body.Descendants<Table>())
+            {
+                foreach (var r in t.Descendants<TableRow>())
+                {
+                    foreach(var c in r.Descendants<TableCell>())
+                    {
+                        foreach(var p in c.Descendants<Paragraph>())
+                        {
+                            Console.WriteLine(p.InnerText);
+                            if (p.InnerText.Equals(placeholder))
+                            {
+                                var element = imageHelper.GetImageElement(relationshipId, fileName, Guid.NewGuid().ToString(), width, height);
+                                c.ReplaceChild(new Paragraph(new Run(element)), p);
+                            }
+                        }
+                    }
                 }
             }
         }
